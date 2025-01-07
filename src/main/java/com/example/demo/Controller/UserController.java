@@ -28,9 +28,16 @@ public class UserController {
     // Đăng nhập
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
-        // Ideally, Spring Security should handle this internally
-        // After authentication, return JWT or other tokens
-        return ResponseEntity.ok("Login successful");
+        try {
+            String result = userService.loginUser(user.getEmail(), user.getPassword());
+            if (result.equals("Login successful")) {
+                return ResponseEntity.ok(result);
+            } else {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result); // 401 - Unauthorized
+            }
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login failed: " + e.getMessage());
+        }
     }
 
     // Đăng xuất

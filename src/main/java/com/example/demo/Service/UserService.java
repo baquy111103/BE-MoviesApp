@@ -3,15 +3,11 @@ package com.example.demo.Service;
 import com.example.demo.Model.User;
 import com.example.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.Optional;
-
 @Service
 public class UserService {
 
@@ -22,8 +18,8 @@ public class UserService {
     private PasswordEncoder passwordEncoder;
 
     public String registerUser(User user) {
-        if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            return "Username already taken";
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return "Email already taken";
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
@@ -32,5 +28,22 @@ public class UserService {
         user.setActive(true);
         userRepository.save(user);
         return "User registered successfully";
+    }
+
+    public String loginUser(String email, String password) {
+        Optional<User> userOptional = userRepository.findByEmail(email);
+
+        if (userOptional.isEmpty()) {
+            return "Username or password error";
+        }
+
+        User user = userOptional.get();
+
+        // Kiểm tra mật khẩu
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return "Email or password error";
+        }
+
+        return "Login successful";
     }
 }

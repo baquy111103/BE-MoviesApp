@@ -35,7 +35,6 @@ public class SecurityConfig {
         return authenticationManagerBuilder.build();
     }
 
-    // HTTP Security Configuration for Spring Security 6.1+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -49,7 +48,7 @@ public class SecurityConfig {
                 )
 
                 .formLogin(formLogin -> formLogin
-                        .permitAll() )
+                        .disable() )
 
                 // Cấu hình logout
                 .logout(logout ->
