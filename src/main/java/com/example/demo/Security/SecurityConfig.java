@@ -6,9 +6,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -43,12 +45,14 @@ public class SecurityConfig {
                 // Cấu hình các đường dẫn và quyền truy cập
                 .authorizeHttpRequests(authorizeHttpRequests ->
                         authorizeHttpRequests
-                                .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll() // Cho phép truy cập các API này mà không cần xác thực
+                                .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
                                 .anyRequest().authenticated()  // Các request còn lại cần phải xác thực
                 )
 
                 .formLogin(formLogin -> formLogin
-                        .disable() )
+                        .permitAll()
+//                        .disable()
+                )
 
                 // Cấu hình logout
                 .logout(logout ->
@@ -66,5 +70,4 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 }
