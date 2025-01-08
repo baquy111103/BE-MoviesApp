@@ -6,67 +6,50 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
+    private final CustomUserDetailsService customUserDetailsService;
 
-    public SecurityConfig(UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
+    public SecurityConfig(CustomUserDetailsService customUserDetailsService) {
+        this.customUserDetailsService = customUserDetailsService;
     }
 
-    // Password Encoder Bean
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    // Authentication Manager Bean
     @Bean
     public AuthenticationManager authenticationManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authenticationManagerBuilder =
                 http.getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(userDetailsService).passwordEncoder(passwordEncoder());
+        authenticationManagerBuilder.userDetailsService(customUserDetailsService).passwordEncoder(passwordEncoder());
         return authenticationManagerBuilder.build();
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable())  // Tắt CSRF cho các API hoặc dịch vụ stateless
-
-                // Cấu hình các đường dẫn và quyền truy cập
-                .authorizeHttpRequests(authorizeHttpRequests ->
-                        authorizeHttpRequests
-                                .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/logout").permitAll()
-                                .anyRequest().authenticated()  // Các request còn lại cần phải xác thực
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .anyRequest().authenticated()
                 )
-
-                .formLogin(formLogin -> formLogin
+                .formLogin(formLogin -> formLogin.permitAll())
+                .logout(logout -> logout
+                        .logoutUrl("/api/auth/logout")
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
                         .permitAll()
-//                        .disable()
                 )
-
-                // Cấu hình logout
-                .logout(logout ->
-                        logout
-                                .logoutUrl("/api/auth/logout")  // Đường dẫn logout
-                                .logoutSuccessHandler((request, response, authentication) -> {
-                                    response.setStatus(HttpServletResponse.SC_OK); // Trả về mã 200 OK
-                                    response.getWriter().write("Logout successful");  // Trả về thông báo logout thành công dưới dạng JSON
-                                    response.getWriter().flush();
-                                })     // URL sau khi logout thành công
-                                .invalidateHttpSession(true)    // Hủy session sau khi logout
-                                .clearAuthentication(true)      // Xóa thông tin xác thực
-                                .permitAll()                    // Cho phép tất cả người dùng logout
-                );
+                .addFilterBefore(new JwtFilter(), UsernamePasswordAuthenticationFilter.class); // Thêm bộ lọc JWT
 
         return http.build();
     }

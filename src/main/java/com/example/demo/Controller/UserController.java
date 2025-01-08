@@ -29,12 +29,11 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
         try {
-            String result = userService.loginUser(user.getEmail(), user.getPassword());
-            if (result.equals("Login successful")) {
-                return ResponseEntity.ok(result);
-            } else {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result); // 401 - Unauthorized
+            String token = userService.loginUser(user.getEmail(), user.getPassword());
+            if (token.startsWith("Username or password error")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(token); // Nếu có lỗi về username/password
             }
+            return ResponseEntity.ok(token); // Trả về token JWT nếu đăng nhập thành công
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Login failed: " + e.getMessage());
         }
