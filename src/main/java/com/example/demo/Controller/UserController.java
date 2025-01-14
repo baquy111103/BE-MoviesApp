@@ -24,7 +24,7 @@ public class UserController {
 
         // Map thông tin người dùng sang DTO
         UserDTO userInfo = new UserDTO();
-        userInfo.setUsername(user.getUsername());
+        userInfo.setUsername(user.getUsername1());
         userInfo.setPhone(user.getPhone());
         userInfo.setEmail(user.getEmail());
         userInfo.setLanguage_code(user.getLanguage_code());
