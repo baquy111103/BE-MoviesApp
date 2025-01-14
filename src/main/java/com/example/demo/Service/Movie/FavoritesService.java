@@ -23,8 +23,8 @@ public class FavoritesService {
     public MovieRepository movieRepository;
 
     @Transactional
-    public List<FavoriteDTO> getAllFavorites() {
-        List<Favorite> favorites = favoriteRepository.findAllFavorite();
+    public List<FavoriteDTO> getAllFavoritesByEmail(String email) {
+        List<Favorite> favorites = favoriteRepository.findAllFavoritesByEmail(email);
         return favorites.stream().map(favorite -> {
             FavoriteDTO dto = new FavoriteDTO();
             dto.setActive(favorite.getActive());
@@ -42,8 +42,8 @@ public class FavoritesService {
     }
 
     @Transactional
-    public FavoriteDTO addOrUpdateFavorite(String movie_code) {
-        Optional<Favorite> favoriteOpt = favoriteRepository.findByMovieCode(movie_code);
+    public FavoriteDTO addOrUpdateFavorite(String movie_code, String email) {
+        Optional<Favorite> favoriteOpt = favoriteRepository.findByMovieCodeAndEmail(movie_code, email);
         Favorite favorite;
 
         if (favoriteOpt.isPresent()) {
@@ -58,6 +58,7 @@ public class FavoritesService {
             favorite.setMovie(movie);
             favorite.setActive(true);
             favorite.setFavorite_day(new Date());
+            favorite.setEmail(email); // Gán email người dùng
         }
 
         // Lưu vào database
@@ -68,8 +69,8 @@ public class FavoritesService {
     }
 
     @Transactional
-    public FavoriteDTO updateFavoriteStatusToInactive(String movie_code) {
-        Optional<Favorite> favoriteOpt = favoriteRepository.findByMovieCode(movie_code);
+    public FavoriteDTO updateFavoriteStatusToInactive(String movie_code, String email) {
+        Optional<Favorite> favoriteOpt = favoriteRepository.findByMovieCodeAndEmail(movie_code, email);
 
         if (favoriteOpt.isPresent()) {
             Favorite favorite = favoriteOpt.get();

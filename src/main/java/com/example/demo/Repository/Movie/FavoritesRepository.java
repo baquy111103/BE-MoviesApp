@@ -10,10 +10,10 @@ import java.util.Optional;
 
 
 public interface FavoritesRepository extends JpaRepository<Favorite, Long> {
-    @Query("SELECT f FROM Favorite f WHERE f.active = true")
-    List<Favorite> findAllFavorite();
 
+    @Query("SELECT f FROM Favorite f WHERE f.active = true AND f.email = :email")
+    List<Favorite> findAllFavoritesByEmail(@Param("email") String email);
 
-    @Query("SELECT f FROM Favorite f WHERE f.movie.movie_code = :movie_code")
-    Optional<Favorite> findByMovieCode(@Param("movie_code") String movie_code);
+    @Query("SELECT f FROM Favorite f WHERE f.movie.movie_code = :movie_code AND f.email = :email")
+    Optional<Favorite> findByMovieCodeAndEmail(@Param("movie_code") String movie_code, @Param("email") String email);
 }
