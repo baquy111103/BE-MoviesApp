@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashMap;
 
 @Service
@@ -42,6 +43,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setBirthday(signUpRequest.getBirthday());
 
         user.setStatus(false);
+
+        user.setCreated_at(new Date());
 
         return userRepository.save(user);
     }

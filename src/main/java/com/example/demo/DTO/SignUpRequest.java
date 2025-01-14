@@ -15,4 +15,5 @@ public class SignUpRequest {
     private String bio;
     private String avatar;
     private Date birthday;
+    private Date created_at;
 }
